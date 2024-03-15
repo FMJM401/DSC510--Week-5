@@ -1,0 +1,22 @@
+#importing libraries that are needed
+#set up
+import  numpy as np
+import pandas as pd
+import scipy.stats as stats
+import matplotlib.pyplo
+
+#reading csv file and printin it out
+posture_personality_trait = pd.read_csv("Myers Briggs Table_S1.csv")
+posture_personality_trait.head()
+
+#creating a scatter plot with wieght vs height with differnt colors corresponding to the posture 
+sns.scatterplot(data = posture_personality_trait, x = 'WEIGHT', y = 'HEIGHT',  hue  = 'POSTURE')
+stats.pearsonr(posture_personality_trait['WEIGHT'],posture_personality_trait['HEIGHT'])
+
+#creating a scatter plot with age vs weight with differnt colors corresponding to the posture 
+sns.scatterplot(data = posture_personality_trait, x = 'AGE', y = 'WEIGHT',  hue  = 'POSTURE')
+stats.pearsonr(posture_personality_trait['AGE'],posture_personality_trait['WEIGHT'])
+
+#creating a scatter plot with age vs height with differnt colors corresponding to the posture 
+sns.scatterplot(data = posture_personality_trait, x = 'AGE', y = 'HEIGHT',  hue  = 'POSTURE')
+stats.pearsonr(posture_personality_trait['AGE'],posture_personality_trait['HEIGHT'])
