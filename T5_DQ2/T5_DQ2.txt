@@ -1,0 +1,122 @@
+T5 DQ2
+
+Linear regression is a powerful tool for modeling relationships between variables in a dataset. However, there are limitations to linear regression that may result in biased or inaccurate predictions. Discuss at least two common assumptions of linear regression models and the potential consequences of violating these assumptions. How can Python be used to diagnose and address violations of these assumptions in a linear regression model? Provide at least one example of a linear regression model that violates one of these assumptions and how it can be improved
+
+#importing needed libraries
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+import statsmodels.api as sm
+import sklearn
+from sklearn.linear_model import LinearRegression
+from scipy.stats import iqr
+
+#reading csv file
+df = pd.read_csv('scrap price.csv')
+df
+df.describe(include='all')
+df.isnull().sum()
+df=df.drop('ID',axis=1)
+df
+df.duplicated()
+df.name.unique
+df.columns
+
+Outliers
+plt.figure(figsize=(15,4))
+plt.subplot(1,4,1)
+df.price.plot(kind='box')
+plt.subplot(1,4,2)
+df.citympg.plot(kind='box')
+plt.subplot(1,4,3)
+df.horsepower.plot(kind='box')
+plt.subplot(1,4,4)
+df.citympg.plot(kind='box')
+plt.show()
+
+def find_outliers_IQR(df):
+    q1= df.quartile(0.25)
+    q3=df.quartile(0.75)
+    IQR=q3-q1
+    data= df[((df<(q1 -1.5*IQR))|(df>(q3+1.5*IQR))).any(axis=1)]
+data
+
+plt.figure(figsize=(15,4))
+plt.subplot(1,4,1)
+data.price.plot(kind='box')
+plt.subplot(1,4,2)
+data.citympg.plot(kind='box')
+plt.subplot(1,4,3)
+data.horsepower.plot(kind='box')
+plt.subplot(1,4,4)
+data.citympg.plot(kind='box')
+plt.show()
+
+Some Graphs and Vizualiations 
+sns.pairplot(data)
+#scatterplot
+f, (ax1, ax2, ax3,ax4,ax5) = plt.subplots(1, 5, sharey=True, figsize =(15,3)) 
+ax1.scatter(data['enginesize'],data['price'])
+ax1.set_title('engine size and price')
+ax2.scatter(data['horsepower'],data['price'])
+ax2.set_title('horsepower and price')
+ax3.scatter(data['curbweight'],data['price'])
+ax3.set_title('curbweight and price')
+ax4.scatter(data['stroke'],data['price'])
+ax4.set_title('stroke and price')
+ax5.scatter(data['citympg'],data['price'])
+ax5.set_title('citympg and price')
+plt.show()
+#histogram
+plt.figure(figsize=(15,6))
+plt.subplot(1,3,1)
+data.carbody.value_counts().plot(kind='bar',color='r')
+plt.subplot(1,3,2)
+data.Car_name.value_counts().plot(kind='bar',color='g')
+plt.subplot(1,3,3)
+data.enginelocation.value_counts().plot(kind='bar',color='b')
+
+Normalize 
+#Our dependent values(y) are price 
+data.price.plot.density()
+plt.show()
+
+log_price = np.log(data['price'])
+# Then we add it to our data frame
+data['log_price'] = log_price
+data_normal=data.drop(['price'],axis=1)
+data_normal
+data.log_price.plot.density()
+plt.figure(figsize=(15,6))
+data_normal.boxplot()
+
+Multicollineararity
+from statsmodels.stats.outliers_influence import variance_inflation_factor
+
+variables = data_normal[['symboling', 'carheight', 'curbweight',
+        'enginesize',  'boreratio',
+       'stroke', 'compressionratio', 'horsepower', 'peakrpm', 'citympg']]
+
+
+# we create a new data frame which will include all the VIFs
+# note that each variable has its own variance inflation factor as this measure is variable specific (not model specific)
+vif = pd.DataFrame()
+
+# here we make use of the variance_inflation_factor, which will basically output the respective VIFs 
+vif["VIF"] = [variance_inflation_factor(variables.values, i) for i in range(variables.shape[1])]
+# Finally, I like to include names so it is easier to explore the result
+vif["Features"] = variables.columns
+vif
+
+from statsmodels.stats.outliers_influence import variance_inflation_factor
+variables = data_normal[['symboling',
+       'horsepower', 'citympg']]
+
+vif = pd.DataFrame()
+vif["VIF"] = [variance_inflation_factor(variables.values, i) for i in range(variables.shape[1])]
+vif["Features"] = variables.columns
+vif
+
+data_multi=data_normal.drop(['carheight','compressionratio','boreratio','stroke','curbweight','peakrpm','enginesize'],axis=1)
+data_multi
